@@ -1,0 +1,13 @@
+package org.inspire.backend;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class InspireBackendApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+
+}
