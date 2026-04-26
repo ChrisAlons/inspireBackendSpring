@@ -1,0 +1,28 @@
+info:
+  name: 12 - Actualizar Paciente (campos parciales)
+  type: http
+  seq: 12
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/pacientes/{{pacienteId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "celular": "999888777",
+        "email": "juan.nuevo@example.com",
+        "direccion": "Calle Nueva 789, Surco",
+        "estadoCivilCodigo": "CASADO",
+        "ocupacion": "Ingeniero Senior"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

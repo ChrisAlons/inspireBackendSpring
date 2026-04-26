@@ -1,0 +1,25 @@
+info:
+  name: 11 - Buscar pacientes por código de historia
+  type: http
+  seq: 11
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/pacientes?q=HC000001&page=0&size=10"
+  params:
+    - name: q
+      value: HC000001
+      type: query
+    - name: page
+      value: "0"
+      type: query
+    - name: size
+      value: "10"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

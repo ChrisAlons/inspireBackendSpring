@@ -1,0 +1,31 @@
+info:
+  name: 05 - Crear Paciente ERROR - Código de catálogo inválido → 422
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/pacientes"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "tipoDocumentoCodigo": "PASAPORTE",
+        "numeroDocumento": "AB123456",
+        "nombres": "Ana",
+        "apellidoPaterno": "Smith",
+        "fechaNacimiento": "1992-07-04",
+        "sexoCodigo": "INVALIDO",
+        "gradoInstruccionCodigo": "SUPERIOR",
+        "estadoCivilCodigo": "SOLTERO"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

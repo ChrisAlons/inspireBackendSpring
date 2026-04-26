@@ -1,0 +1,21 @@
+opencollection: 1.0.0
+
+info:
+  name: Inspire Backend - Pacientes
+
+request:
+  variables:
+    - name: baseUrl
+      value: http://localhost:8080
+    - name: pacienteId
+      value: ""
+
+docs:
+  content: Endpoints del módulo paciente. Ejecutar en orden para flujo completo de prueba.
+  type: text/markdown
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
