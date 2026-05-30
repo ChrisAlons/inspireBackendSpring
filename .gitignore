@@ -35,7 +35,5 @@ build/
 # Local environment variables
 .env
 !.env.example
-
 # Test reports
 test-results.html
-

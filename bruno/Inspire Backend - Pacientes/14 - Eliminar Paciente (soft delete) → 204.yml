@@ -1,0 +1,15 @@
+info:
+  name: 14 - Eliminar Paciente (soft delete) → 204
+  type: http
+  seq: 14
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/pacientes/{{pacienteId}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,31 @@
+info:
+  name: 04 - Crear Paciente ERROR - Documento duplicado → 409
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/pacientes"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "tipoDocumentoCodigo": "DNI",
+        "numeroDocumento": "12345678",
+        "nombres": "Otro",
+        "apellidoPaterno": "Duplicado",
+        "fechaNacimiento": "1995-01-01",
+        "sexoCodigo": "M",
+        "gradoInstruccionCodigo": "PRIMARIA",
+        "estadoCivilCodigo": "SOLTERO"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

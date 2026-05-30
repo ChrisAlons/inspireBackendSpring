@@ -1,0 +1,39 @@
+info:
+  name: 02 - Crear Paciente Mujer
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/pacientes"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "tipoDocumentoCodigo": "DNI",
+        "numeroDocumento": "87654321",
+        "nombres": "María Elena",
+        "apellidoPaterno": "Torres",
+        "apellidoMaterno": "Quispe",
+        "fechaNacimiento": "1985-11-20",
+        "sexoCodigo": "F",
+        "celular": "912345678",
+        "email": "maria.torres@example.com",
+        "direccion": "Jr. Cusco 456, San Isidro",
+        "lugarNacimiento": "Arequipa",
+        "procedencia": "Arequipa",
+        "viajesUltimoAnio": "",
+        "gradoInstruccionCodigo": "POSGRADO",
+        "ocupacion": "Médico",
+        "estadoCivilCodigo": "CASADO"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

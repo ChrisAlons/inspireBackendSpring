@@ -1,0 +1,39 @@
+info:
+  name: 13 - Actualizar Paciente (todos los campos)
+  type: http
+  seq: 13
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/pacientes/{{pacienteId}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "tipoDocumentoCodigo": "DNI",
+        "numeroDocumento": "12345678",
+        "nombres": "Juan Carlos",
+        "apellidoPaterno": "García",
+        "apellidoMaterno": "Mendoza",
+        "fechaNacimiento": "1990-05-15",
+        "sexoCodigo": "M",
+        "celular": "999888777",
+        "email": "juan.actualizado@example.com",
+        "direccion": "Av. Javier Prado 1000, San Isidro",
+        "lugarNacimiento": "Callao",
+        "procedencia": "Lima",
+        "viajesUltimoAnio": "Viajó a Argentina en marzo",
+        "gradoInstruccionCodigo": "POSGRADO",
+        "ocupacion": "Jefe de TI",
+        "estadoCivilCodigo": "CASADO"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

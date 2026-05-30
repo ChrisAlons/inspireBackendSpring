@@ -1,0 +1,49 @@
+info:
+  name: 01 - Crear Paciente (happy path)
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/pacientes"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "tipoDocumentoCodigo": "DNI",
+        "numeroDocumento": "12345678",
+        "nombres": "Juan Carlos",
+        "apellidoPaterno": "García",
+        "apellidoMaterno": "López",
+        "fechaNacimiento": "1990-05-15",
+        "sexoCodigo": "M",
+        "celular": "987654321",
+        "email": "juan.garcia@example.com",
+        "direccion": "Av. Lima 123, Miraflores",
+        "lugarNacimiento": "Lima",
+        "procedencia": "Lima",
+        "viajesUltimoAnio": "Viajó a Cusco en enero",
+        "gradoInstruccionCodigo": "SUPERIOR",
+        "ocupacion": "Ingeniero de Sistemas",
+        "estadoCivilCodigo": "SOLTERO"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 201) {
+            const body = res.getBody();
+            bru.setEnvVar('pacienteId', body.id);
+            console.log('pacienteId guardado:', body.id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,25 @@
+info:
+  name: 10 - Buscar pacientes por nombre
+  type: http
+  seq: 10
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/pacientes?q=García&page=0&size=10"
+  params:
+    - name: q
+      value: García
+      type: query
+    - name: page
+      value: "0"
+      type: query
+    - name: size
+      value: "10"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
