@@ -12,7 +12,16 @@
     { "key": "contactoId", "value": "", "type": "string" },
     { "key": "historiaId", "value": "", "type": "string" },
     { "key": "citaId", "value": "", "type": "string" },
-    { "key": "atencionId", "value": "", "type": "string" }
+    { "key": "atencionId", "value": "", "type": "string" },
+    { "key": "enfermedadId", "value": "", "type": "string" },
+    { "key": "antecedentePersonalId", "value": "", "type": "string" },
+    { "key": "antecedenteFamiliarId", "value": "", "type": "string" },
+    { "key": "habitoId", "value": "", "type": "string" },
+    { "key": "odontogramaId", "value": "", "type": "string" },
+    { "key": "hallazgoId", "value": "", "type": "string" },
+    { "key": "planId", "value": "", "type": "string" },
+    { "key": "planDetalleId", "value": "", "type": "string" },
+    { "key": "tratamientoEjecutadoId", "value": "", "type": "string" }
   ],
   "item": [
     {
@@ -1454,6 +1463,875 @@
               "raw": "{{baseUrl}}/api/atenciones",
               "host": ["{{baseUrl}}"],
               "path": ["api", "atenciones"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7 - Enfermedad Actual",
+      "item": [
+        {
+          "name": "01 - Crear Enfermedad Actual",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('enfermedadId', body.id);",
+                  "    console.log('enfermedadId:', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"atencionId\": \"{{atencionId}}\",\n  \"motivoConsulta\": \"Dolor en molar inferior derecho\",\n  \"tiempoEnfermedad\": \"3 días\",\n  \"signosSintomas\": \"Dolor pulsátil, sensibilidad al frío\",\n  \"funcionesBiologicas\": \"Normales\",\n  \"expectativasTratamiento\": \"Eliminar dolor y conservar pieza\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/enfermedades-actuales",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enfermedades-actuales"]
+            }
+          }
+        },
+        {
+          "name": "02 - Obtener por Atención",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Datos correctos', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.motivoConsulta).to.include('Dolor');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/enfermedades-actuales/por-atencion/{{atencionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enfermedades-actuales", "por-atencion", "{{atencionId}}"]
+            }
+          }
+        },
+        {
+          "name": "03 - Actualizar Enfermedad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"signosSintomas\": \"Dolor pulsátil, sensibilidad al frío y calor. Inflamación gingival.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/enfermedades-actuales/{{enfermedadId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enfermedades-actuales", "{{enfermedadId}}"]
+            }
+          }
+        },
+        {
+          "name": "04 - Crear ERROR - Duplicada → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"atencionId\": \"{{atencionId}}\",\n  \"motivoConsulta\": \"Duplicado\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/enfermedades-actuales",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "enfermedades-actuales"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8 - Antecedentes Personales",
+      "item": [
+        {
+          "name": "01 - Crear Antecedente Personal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('antecedentePersonalId', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"historiaClinicaId\": \"{{historiaId}}\",\n  \"descripcion\": \"Diabetes tipo 2 controlada con metformina\",\n  \"fechaRegistro\": \"2026-05-30\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/antecedentes-personales",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "antecedentes-personales"]
+            }
+          }
+        },
+        {
+          "name": "02 - Listar por Historia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Es array', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/antecedentes-personales/por-historia/{{historiaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "antecedentes-personales", "por-historia", "{{historiaId}}"]
+            }
+          }
+        },
+        {
+          "name": "03 - Actualizar Antecedente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"descripcion\": \"Diabetes tipo 2 controlada. Hipertensión leve.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/antecedentes-personales/{{antecedentePersonalId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "antecedentes-personales", "{{antecedentePersonalId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9 - Antecedentes Familiares",
+      "item": [
+        {
+          "name": "01 - Crear Antecedente Familiar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('antecedenteFamiliarId', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"historiaClinicaId\": \"{{historiaId}}\",\n  \"parentescoCodigo\": \"PADRE\",\n  \"descripcion\": \"Diabetes tipo 2, hipertenso\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/antecedentes-familiares",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "antecedentes-familiares"]
+            }
+          }
+        },
+        {
+          "name": "02 - Listar por Historia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/antecedentes-familiares/por-historia/{{historiaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "antecedentes-familiares", "por-historia", "{{historiaId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Hábitos",
+      "item": [
+        {
+          "name": "01 - Crear Hábito TABACO",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('habitoId', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"historiaClinicaId\": \"{{historiaId}}\",\n  \"tipo\": \"TABACO\",\n  \"frecuencia\": \"EX_CONSUMIDOR\",\n  \"detalle\": \"Fumó 5 cigarrillos/día durante 10 años. Dejó hace 3 años.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/habitos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "habitos"]
+            }
+          }
+        },
+        {
+          "name": "02 - Crear Hábito ALCOHOL",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"historiaClinicaId\": \"{{historiaId}}\",\n  \"tipo\": \"ALCOHOL\",\n  \"frecuencia\": \"OCASIONAL\",\n  \"detalle\": \"Cerveza socialmente, fines de semana\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/habitos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "habitos"]
+            }
+          }
+        },
+        {
+          "name": "03 - Listar por Historia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tiene 2 hábitos', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    pm.expect(body.length).to.eql(2);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/habitos/por-historia/{{historiaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "habitos", "por-historia", "{{historiaId}}"]
+            }
+          }
+        },
+        {
+          "name": "04 - Crear ERROR - Tipo duplicado → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Mensaje de error', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.include('Ya existe');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"historiaClinicaId\": \"{{historiaId}}\",\n  \"tipo\": \"TABACO\",\n  \"frecuencia\": \"NUNCA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/habitos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "habitos"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Odontogramas",
+      "item": [
+        {
+          "name": "01 - Crear Odontograma",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('odontogramaId', body.id);",
+                  "    console.log('odontogramaId:', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"historiaClinicaId\": \"{{historiaId}}\",\n  \"atencionId\": \"{{atencionId}}\",\n  \"isInicial\": true,\n  \"observaciones\": \"Odontograma inicial\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/odontogramas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "odontogramas"]
+            }
+          }
+        },
+        {
+          "name": "02 - Crear Hallazgo (manual)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('hallazgoId', body.id);",
+                  "    pm.expect(body.isRegistradoVoz).to.eql(false);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"piezaId\": 46,\n  \"caraCodigo\": \"OCLUSAL\",\n  \"condicionCodigo\": \"CARIES\",\n  \"estado\": \"EXISTENTE\",\n  \"notas\": \"Caries profunda, evaluar endodoncia\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/odontogramas/{{odontogramaId}}/hallazgos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "odontogramas", "{{odontogramaId}}", "hallazgos"]
+            }
+          }
+        },
+        {
+          "name": "03 - Crear Hallazgos por VOZ",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Hallazgos registrados por voz', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    pm.expect(body.length).to.eql(2);",
+                  "    body.forEach(h => {",
+                  "        pm.expect(h.isRegistradoVoz).to.eql(true);",
+                  "        pm.expect(h.transcripcionVoz).to.include('caries en pieza');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"transcripcionVoz\": \"El paciente presenta caries en pieza 16 cara oclusal y obturación en pieza 26 cara mesial\",\n  \"hallazgos\": [\n    {\n      \"piezaId\": 16,\n      \"caraCodigo\": \"OCLUSAL\",\n      \"condicionCodigo\": \"CARIES\",\n      \"estado\": \"EXISTENTE\"\n    },\n    {\n      \"piezaId\": 26,\n      \"caraCodigo\": \"MESIAL\",\n      \"condicionCodigo\": \"OBTURACION\",\n      \"estado\": \"EXISTENTE\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/odontogramas/{{odontogramaId}}/hallazgos/voz",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "odontogramas", "{{odontogramaId}}", "hallazgos", "voz"]
+            }
+          }
+        },
+        {
+          "name": "04 - Listar Hallazgos del Odontograma",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tiene 3 hallazgos', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    pm.expect(body.length).to.eql(3);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/odontogramas/{{odontogramaId}}/hallazgos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "odontogramas", "{{odontogramaId}}", "hallazgos"]
+            }
+          }
+        },
+        {
+          "name": "05 - Listar Odontogramas por Historia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/odontogramas/por-historia/{{historiaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "odontogramas", "por-historia", "{{historiaId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Planes de Tratamiento",
+      "item": [
+        {
+          "name": "01 - Crear Plan de Tratamiento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('planId', body.id);",
+                  "    console.log('planId:', body.id);",
+                  "    pm.expect(body.estado).to.eql('PROPUESTO');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"atencionId\": \"{{atencionId}}\",\n  \"historiaClinicaId\": \"{{historiaId}}\",\n  \"observaciones\": \"Plan de tratamiento para caries múltiples\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/planes-tratamiento",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "planes-tratamiento"]
+            }
+          }
+        },
+        {
+          "name": "02 - Agregar Detalle al Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('planDetalleId', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"procedimientoCodigo\": \"OBTURACION\",\n  \"piezaId\": 46,\n  \"caraCodigo\": \"OCLUSAL\",\n  \"cantidad\": 1,\n  \"precioUnitario\": 150.00,\n  \"orden\": 1,\n  \"notas\": \"Obturación con resina compuesta\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/planes-tratamiento/{{planId}}/detalles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "planes-tratamiento", "{{planId}}", "detalles"]
+            }
+          }
+        },
+        {
+          "name": "03 - Verificar monto total recalculado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Monto total = 150', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.montoTotal).to.eql(150.00);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/planes-tratamiento/{{planId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "planes-tratamiento", "{{planId}}"]
+            }
+          }
+        },
+        {
+          "name": "04 - Cambiar Estado: PROPUESTO → ACEPTADO",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado ACEPTADO', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.estado).to.eql('ACEPTADO');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"estado\": \"ACEPTADO\",\n  \"actorPersonaId\": \"{{odontologoId}}\",\n  \"aceptadoPor\": \"Juan Carlos García López\",\n  \"notas\": \"Paciente firma consentimiento físico\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/planes-tratamiento/{{planId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "planes-tratamiento", "{{planId}}", "estado"]
+            }
+          }
+        },
+        {
+          "name": "05 - Cambiar Estado: ACEPTADO → EN_EJECUCION",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado EN_EJECUCION', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.estado).to.eql('EN_EJECUCION');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"estado\": \"EN_EJECUCION\",\n  \"actorPersonaId\": \"{{odontologoId}}\",\n  \"notas\": \"Inicio de procedimientos\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/planes-tratamiento/{{planId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "planes-tratamiento", "{{planId}}", "estado"]
+            }
+          }
+        },
+        {
+          "name": "06 - Listar Eventos del Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tiene 2 eventos', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    pm.expect(body.length).to.eql(2);",
+                  "    pm.expect(body[0].estadoNuevo).to.eql('ACEPTADO');",
+                  "    pm.expect(body[1].estadoNuevo).to.eql('EN_EJECUCION');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/planes-tratamiento/{{planId}}/eventos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "planes-tratamiento", "{{planId}}", "eventos"]
+            }
+          }
+        },
+        {
+          "name": "07 - Listar Detalles del Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Detalle PENDIENTE', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    pm.expect(body[0].estado).to.eql('PENDIENTE');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/planes-tratamiento/{{planId}}/detalles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "planes-tratamiento", "{{planId}}", "detalles"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Tratamientos Ejecutados",
+      "item": [
+        {
+          "name": "01 - Registrar Tratamiento Ejecutado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('tratamientoEjecutadoId', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"planDetalleId\": \"{{planDetalleId}}\",\n  \"atencionId\": \"{{atencionId}}\",\n  \"odontologoId\": \"{{odontologoId}}\",\n  \"observaciones\": \"Obturación completada sin complicaciones. Paciente toleró bien el procedimiento.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tratamientos-ejecutados",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tratamientos-ejecutados"]
+            }
+          }
+        },
+        {
+          "name": "02 - Verificar detalle marcado como EJECUTADO",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Detalle EJECUTADO', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.estado).to.eql('EJECUTADO');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/planes-tratamiento/{{planId}}/detalles/{{planDetalleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "planes-tratamiento", "{{planId}}", "detalles", "{{planDetalleId}}"]
+            }
+          }
+        },
+        {
+          "name": "03 - Listar por Atención",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Es array', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    pm.expect(body.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tratamientos-ejecutados/por-atencion/{{atencionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tratamientos-ejecutados", "por-atencion", "{{atencionId}}"]
             }
           }
         }

@@ -38,9 +38,20 @@ No lint or typecheck commands — compilation (`clean package`) is the only code
 
 ## Module Status
 
-Only `modules/paciente/` has the full stack (Service + Controller + Mapper + DTOs). All other modules have Entity + Repository only. Use `paciente/` as the exact template.
+All modules have full stack (Service + Controller + Mapper + DTOs) implemented:
 
-Modules needing Service/Controller/DTOs: `persona`, `historiaclinica`, `cita`, `atencion`, `enfermedadactual`, `antecedente`, `habito`, `odontograma`, `plantratamiento`, `tratamientoejecutado`, `contactoemergencia`.
+- `persona` — CRUD standalone (odontólogos, referencias)
+- `paciente` — CRUD con Persona embebida (módulo de referencia)
+- `contactoemergencia` — CRUD anidado bajo paciente
+- `historiaclinica` — 1:1 con paciente
+- `cita` — CRUD + máquina de estados (PROGRAMADA → CONFIRMADA → EN_CURSO → ATENDIDA/CANCELADA/NO_ASISTIO)
+- `atencion` — CRUD + cerrar (fechaFin) + listar en curso
+- `enfermedadactual` — 1:1 con atencion
+- `antecedente` — personales + familiares, ligados a historiaclinica
+- `habito` — unique constraint por (historiaClinicaId, tipo)
+- `odontograma` — CRUD + hallazgos + **endpoint de voz** (`POST /{id}/hallazgos/voz`)
+- `plantratamiento` — cabecera + detalles + eventos, flujo de estados (PROPUESTO → ACEPTADO → EN_EJECUCION → COMPLETADO/PARCIAL)
+- `tratamientoejecutado` — registro de procedimientos completados, marca detalle como EJECUTADO
 
 ## Flyway Migrations
 
