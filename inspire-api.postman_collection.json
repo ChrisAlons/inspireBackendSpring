@@ -1,0 +1,1463 @@
+{
+  "info": {
+    "name": "Inspire Backend - API Completa",
+    "description": "Colección completa de endpoints. Ejecutar carpetas en orden: 1-Personas → 2-Pacientes → 3-Contactos → 4-Historias → 5-Citas → 6-Atenciones.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "odontologoId", "value": "", "type": "string" },
+    { "key": "pacienteId", "value": "", "type": "string" },
+    { "key": "pacientePersonaId", "value": "", "type": "string" },
+    { "key": "contactoId", "value": "", "type": "string" },
+    { "key": "historiaId", "value": "", "type": "string" },
+    { "key": "citaId", "value": "", "type": "string" },
+    { "key": "atencionId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1 - Personas",
+      "item": [
+        {
+          "name": "01 - Crear Odontólogo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('odontologoId', body.id);",
+                  "    console.log('odontologoId:', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"tipoDocumentoCodigo\": \"DNI\",\n  \"numeroDocumento\": \"00000001\",\n  \"nombres\": \"Dr. Roberto\",\n  \"apellidoPaterno\": \"Mendoza\",\n  \"apellidoMaterno\": \"Ríos\",\n  \"fechaNacimiento\": \"1975-03-20\",\n  \"sexoCodigo\": \"M\",\n  \"celular\": \"999111222\",\n  \"email\": \"dr.mendoza@clinica.com\",\n  \"direccion\": \"Av. Javier Prado 500, San Isidro\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/personas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "personas"]
+            }
+          }
+        },
+        {
+          "name": "02 - Obtener Persona por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tiene tipoDocumentoCodigo', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.tipoDocumentoCodigo).to.eql('DNI');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/personas/{{odontologoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "personas", "{{odontologoId}}"]
+            }
+          }
+        },
+        {
+          "name": "03 - Buscar Personas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Resultado paginado', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body.content.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/personas?q=Mendoza&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "personas"],
+              "query": [
+                { "key": "q", "value": "Mendoza" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "04 - Actualizar Persona (parcial)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Celular actualizado', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.celular).to.eql('988777666');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"celular\": \"988777666\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/personas/{{odontologoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "personas", "{{odontologoId}}"]
+            }
+          }
+        },
+        {
+          "name": "05 - Crear Persona ERROR - Documento duplicado → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Mensaje de error', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.include('Ya existe');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"tipoDocumentoCodigo\": \"DNI\",\n  \"numeroDocumento\": \"00000001\",\n  \"nombres\": \"Duplicado\",\n  \"apellidoPaterno\": \"Test\",\n  \"fechaNacimiento\": \"1990-01-01\",\n  \"sexoCodigo\": \"M\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/personas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "personas"]
+            }
+          }
+        },
+        {
+          "name": "06 - Crear Persona ERROR - Validación → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Lista de errores', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"tipoDocumentoCodigo\": \"\",\n  \"numeroDocumento\": \"\",\n  \"nombres\": \"\",\n  \"apellidoPaterno\": \"\",\n  \"fechaNacimiento\": \"2099-01-01\",\n  \"sexoCodigo\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/personas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "personas"]
+            }
+          }
+        },
+        {
+          "name": "07 - Obtener Persona ERROR - No existe → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/personas/00000000-0000-0000-0000-000000000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "personas", "00000000-0000-0000-0000-000000000000"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - Pacientes",
+      "item": [
+        {
+          "name": "01 - Crear Paciente (happy path)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('pacienteId', body.id);",
+                  "    pm.collectionVariables.set('pacientePersonaId', body.personaId);",
+                  "    console.log('pacienteId:', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"tipoDocumentoCodigo\": \"DNI\",\n  \"numeroDocumento\": \"12345678\",\n  \"nombres\": \"Juan Carlos\",\n  \"apellidoPaterno\": \"García\",\n  \"apellidoMaterno\": \"López\",\n  \"fechaNacimiento\": \"1990-05-15\",\n  \"sexoCodigo\": \"M\",\n  \"celular\": \"987654321\",\n  \"email\": \"juan.garcia@example.com\",\n  \"direccion\": \"Av. Lima 123, Miraflores\",\n  \"lugarNacimiento\": \"Lima\",\n  \"procedencia\": \"Lima\",\n  \"viajesUltimoAnio\": \"Viajó a Cusco en enero\",\n  \"gradoInstruccionCodigo\": \"SUPERIOR\",\n  \"ocupacion\": \"Ingeniero de Sistemas\",\n  \"estadoCivilCodigo\": \"SOLTERO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes"]
+            }
+          }
+        },
+        {
+          "name": "02 - Obtener Paciente por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Datos correctos', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.nombres).to.eql('Juan Carlos');",
+                  "    pm.expect(body.codigoHistoria).to.match(/^HC/);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/{{pacienteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "{{pacienteId}}"]
+            }
+          }
+        },
+        {
+          "name": "03 - Buscar Pacientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paginado', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes?q=García&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes"],
+              "query": [
+                { "key": "q", "value": "García" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "04 - Actualizar Paciente (parcial)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Celular actualizado', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.celular).to.eql('999888777');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"celular\": \"999888777\",\n  \"estadoCivilCodigo\": \"CASADO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/{{pacienteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "{{pacienteId}}"]
+            }
+          }
+        },
+        {
+          "name": "05 - Crear Paciente ERROR - Duplicado → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"tipoDocumentoCodigo\": \"DNI\",\n  \"numeroDocumento\": \"12345678\",\n  \"nombres\": \"Otro\",\n  \"apellidoPaterno\": \"Duplicado\",\n  \"fechaNacimiento\": \"1995-01-01\",\n  \"sexoCodigo\": \"M\",\n  \"gradoInstruccionCodigo\": \"PRIMARIA\",\n  \"estadoCivilCodigo\": \"SOLTERO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 - Contactos de Emergencia",
+      "item": [
+        {
+          "name": "01 - Crear Contacto de Emergencia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('contactoId', body.id);",
+                  "    console.log('contactoId:', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"nombresCompletos\": \"Ana García López\",\n  \"celular\": \"987111222\",\n  \"parentescoCodigo\": \"MADRE\",\n  \"isApoderado\": true,\n  \"prioridad\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/{{pacienteId}}/contactos-emergencia",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "{{pacienteId}}", "contactos-emergencia"]
+            }
+          }
+        },
+        {
+          "name": "02 - Crear Segundo Contacto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"nombresCompletos\": \"Pedro García Torres\",\n  \"celular\": \"987333444\",\n  \"parentescoCodigo\": \"PADRE\",\n  \"prioridad\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/{{pacienteId}}/contactos-emergencia",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "{{pacienteId}}", "contactos-emergencia"]
+            }
+          }
+        },
+        {
+          "name": "03 - Listar Contactos del Paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Lista ordenada por prioridad', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    pm.expect(body.length).to.eql(2);",
+                  "    pm.expect(body[0].prioridad).to.eql(1);",
+                  "    pm.expect(body[1].prioridad).to.eql(2);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/{{pacienteId}}/contactos-emergencia",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "{{pacienteId}}", "contactos-emergencia"]
+            }
+          }
+        },
+        {
+          "name": "04 - Obtener Contacto por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Datos correctos', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.parentescoCodigo).to.eql('MADRE');",
+                  "    pm.expect(body.isApoderado).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/{{pacienteId}}/contactos-emergencia/{{contactoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "{{pacienteId}}", "contactos-emergencia", "{{contactoId}}"]
+            }
+          }
+        },
+        {
+          "name": "05 - Actualizar Contacto (parcial)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Celular actualizado', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.celular).to.eql('900111222');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"celular\": \"900111222\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/{{pacienteId}}/contactos-emergencia/{{contactoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "{{pacienteId}}", "contactos-emergencia", "{{contactoId}}"]
+            }
+          }
+        },
+        {
+          "name": "06 - Crear Contacto ERROR - Parentesco inválido → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"nombresCompletos\": \"Test\",\n  \"celular\": \"111\",\n  \"parentescoCodigo\": \"INVALIDO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/{{pacienteId}}/contactos-emergencia",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "{{pacienteId}}", "contactos-emergencia"]
+            }
+          }
+        },
+        {
+          "name": "07 - Eliminar Contacto → 204",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/{{pacienteId}}/contactos-emergencia/{{contactoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "{{pacienteId}}", "contactos-emergencia", "{{contactoId}}"]
+            }
+          }
+        },
+        {
+          "name": "08 - Verificar eliminado → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pacientes/{{pacienteId}}/contactos-emergencia/{{contactoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pacientes", "{{pacienteId}}", "contactos-emergencia", "{{contactoId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 - Historias Clínicas",
+      "item": [
+        {
+          "name": "01 - Crear Historia Clínica",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('historiaId', body.id);",
+                  "    console.log('historiaId:', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"pacienteId\": \"{{pacienteId}}\",\n  \"odontologoId\": \"{{odontologoId}}\",\n  \"observacionesGenerales\": \"Paciente con buena salud general\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/historias-clinicas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "historias-clinicas"]
+            }
+          }
+        },
+        {
+          "name": "02 - Obtener Historia por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Datos correctos', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.pacienteId).to.eql(pm.collectionVariables.get('pacienteId'));",
+                  "    pm.expect(body.odontologoId).to.eql(pm.collectionVariables.get('odontologoId'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/historias-clinicas/{{historiaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "historias-clinicas", "{{historiaId}}"]
+            }
+          }
+        },
+        {
+          "name": "03 - Obtener Historia por Paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Es la historia del paciente', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.pacienteId).to.eql(pm.collectionVariables.get('pacienteId'));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/historias-clinicas/por-paciente/{{pacienteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "historias-clinicas", "por-paciente", "{{pacienteId}}"]
+            }
+          }
+        },
+        {
+          "name": "04 - Actualizar Historia (observaciones)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Observaciones actualizadas', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.observacionesGenerales).to.include('alergias');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"observacionesGenerales\": \"Paciente con alergias a penicilina\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/historias-clinicas/{{historiaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "historias-clinicas", "{{historiaId}}"]
+            }
+          }
+        },
+        {
+          "name": "05 - Crear Historia ERROR - Duplicada → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Mensaje de error', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.include('ya tiene una historia');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"pacienteId\": \"{{pacienteId}}\",\n  \"odontologoId\": \"{{odontologoId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/historias-clinicas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "historias-clinicas"]
+            }
+          }
+        },
+        {
+          "name": "06 - Obtener Historia ERROR - Paciente sin historia → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/historias-clinicas/por-paciente/00000000-0000-0000-0000-000000000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "historias-clinicas", "por-paciente", "00000000-0000-0000-0000-000000000000"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5 - Citas",
+      "item": [
+        {
+          "name": "01 - Crear Cita",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('citaId', body.id);",
+                  "    console.log('citaId:', body.id);",
+                  "    pm.expect(body.estado).to.eql('PROGRAMADA');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"pacienteId\": \"{{pacienteId}}\",\n  \"odontologoId\": \"{{odontologoId}}\",\n  \"fechaHoraInicio\": \"2026-06-15T09:00:00Z\",\n  \"fechaHoraFin\": \"2026-06-15T10:00:00Z\",\n  \"motivo\": \"Control rutinario y limpieza dental\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas"]
+            }
+          }
+        },
+        {
+          "name": "02 - Obtener Cita por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado PROGRAMADA', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.estado).to.eql('PROGRAMADA');",
+                  "    pm.expect(body.motivo).to.include('Control');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/citas/{{citaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas", "{{citaId}}"]
+            }
+          }
+        },
+        {
+          "name": "03 - Listar Citas del Paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Paginado', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('content');",
+                  "    pm.expect(body.content.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/citas?pacienteId={{pacienteId}}&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas"],
+              "query": [
+                { "key": "pacienteId", "value": "{{pacienteId}}" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "04 - Actualizar Cita (cambiar horario)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Motivo actualizado', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.motivo).to.include('urgencia');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"motivo\": \"Consulta de urgencia - dolor molar\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas/{{citaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas", "{{citaId}}"]
+            }
+          }
+        },
+        {
+          "name": "05 - Cambiar Estado: PROGRAMADA → CONFIRMADA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado CONFIRMADA', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.estado).to.eql('CONFIRMADA');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"estado\": \"CONFIRMADA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas/{{citaId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas", "{{citaId}}", "estado"]
+            }
+          }
+        },
+        {
+          "name": "06 - Cambiar Estado: CONFIRMADA → EN_CURSO",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado EN_CURSO', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.estado).to.eql('EN_CURSO');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"estado\": \"EN_CURSO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas/{{citaId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas", "{{citaId}}", "estado"]
+            }
+          }
+        },
+        {
+          "name": "07 - Cambiar Estado: EN_CURSO → ATENDIDA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado ATENDIDA', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.estado).to.eql('ATENDIDA');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"estado\": \"ATENDIDA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas/{{citaId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas", "{{citaId}}", "estado"]
+            }
+          }
+        },
+        {
+          "name": "08 - Cambiar Estado ERROR - Transición inválida → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Mensaje de transición inválida', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.include('Transición no válida');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"estado\": \"PROGRAMADA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas/{{citaId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas", "{{citaId}}", "estado"]
+            }
+          }
+        },
+        {
+          "name": "09 - Crear Cita ERROR - Fecha fin antes de inicio → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"pacienteId\": \"{{pacienteId}}\",\n  \"odontologoId\": \"{{odontologoId}}\",\n  \"fechaHoraInicio\": \"2026-06-15T10:00:00Z\",\n  \"fechaHoraFin\": \"2026-06-15T09:00:00Z\",\n  \"motivo\": \"Error de fechas\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas"]
+            }
+          }
+        },
+        {
+          "name": "10 - Crear Cita para Cancelar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('citaParaCancelarId', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"pacienteId\": \"{{pacienteId}}\",\n  \"odontologoId\": \"{{odontologoId}}\",\n  \"fechaHoraInicio\": \"2026-07-01T15:00:00Z\",\n  \"fechaHoraFin\": \"2026-07-01T16:00:00Z\",\n  \"motivo\": \"Cita para prueba de cancelación\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas"]
+            }
+          }
+        },
+        {
+          "name": "11 - Cancelar Cita: PROGRAMADA → CANCELADA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado CANCELADA', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.estado).to.eql('CANCELADA');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"estado\": \"CANCELADA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas/{{citaParaCancelarId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas", "{{citaParaCancelarId}}", "estado"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6 - Atenciones",
+      "item": [
+        {
+          "name": "00 - Preparar: Crear nueva cita y llevarla a EN_CURSO",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('citaId', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"pacienteId\": \"{{pacienteId}}\",\n  \"odontologoId\": \"{{odontologoId}}\",\n  \"fechaHoraInicio\": \"2026-06-20T10:00:00Z\",\n  \"fechaHoraFin\": \"2026-06-20T11:00:00Z\",\n  \"motivo\": \"Atención para pruebas\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas"]
+            }
+          }
+        },
+        {
+          "name": "00b - Preparar: Cita → CONFIRMADA",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"estado\": \"CONFIRMADA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas/{{citaId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas", "{{citaId}}", "estado"]
+            }
+          }
+        },
+        {
+          "name": "00c - Preparar: Cita → EN_CURSO",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"estado\": \"EN_CURSO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/citas/{{citaId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "citas", "{{citaId}}", "estado"]
+            }
+          }
+        },
+        {
+          "name": "01 - Crear Atención",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('atencionId', body.id);",
+                  "    console.log('atencionId:', body.id);",
+                  "    pm.expect(body.fechaFin).to.be.null;",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"citaId\": \"{{citaId}}\",\n  \"historiaClinicaId\": \"{{historiaId}}\",\n  \"odontologoId\": \"{{odontologoId}}\",\n  \"notas\": \"Paciente llega por dolor en molar inferior derecho\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/atenciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atenciones"]
+            }
+          }
+        },
+        {
+          "name": "02 - Obtener Atención por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('En curso (fechaFin null)', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.fechaFin).to.be.null;",
+                  "    pm.expect(body.notas).to.include('dolor');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/atenciones/{{atencionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atenciones", "{{atencionId}}"]
+            }
+          }
+        },
+        {
+          "name": "03 - Listar Atenciones en Curso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Hay atenciones en curso', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    pm.expect(body.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/atenciones/en-curso",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atenciones", "en-curso"]
+            }
+          }
+        },
+        {
+          "name": "04 - Listar Atenciones por Historia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Lista de atenciones', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/atenciones/por-historia/{{historiaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atenciones", "por-historia", "{{historiaId}}"]
+            }
+          }
+        },
+        {
+          "name": "05 - Actualizar Notas de Atención",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Notas actualizadas', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.notas).to.include('Se realizó radiografía');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"notas\": \"Se realizó radiografía panorámica. Se detectó caries en pieza 46.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/atenciones/{{atencionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atenciones", "{{atencionId}}"]
+            }
+          }
+        },
+        {
+          "name": "06 - Cerrar Atención",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Fecha de fin registrada', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.fechaFin).to.not.be.null;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/atenciones/{{atencionId}}/cerrar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atenciones", "{{atencionId}}", "cerrar"]
+            }
+          }
+        },
+        {
+          "name": "07 - Cerrar Atención ERROR - Ya cerrada → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Mensaje de error', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.include('ya fue cerrada');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/atenciones/{{atencionId}}/cerrar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atenciones", "{{atencionId}}", "cerrar"]
+            }
+          }
+        },
+        {
+          "name": "08 - Crear Atención ERROR - Cita ya tiene atención → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Mensaje de error', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.include('ya tiene una atención');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"citaId\": \"{{citaId}}\",\n  \"historiaClinicaId\": \"{{historiaId}}\",\n  \"odontologoId\": \"{{odontologoId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/atenciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atenciones"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
