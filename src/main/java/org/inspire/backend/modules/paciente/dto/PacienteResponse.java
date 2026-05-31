@@ -18,6 +18,7 @@ public record PacienteResponse(
         String email,
         String direccion,
         String codigoHistoria,
+        UUID historiaClinicaId,
         String lugarNacimiento,
         String procedencia,
         String viajesUltimoAnio,

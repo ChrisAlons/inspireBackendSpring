@@ -41,6 +41,11 @@ public class PlanTratamientoController {
         return ResponseEntity.ok(planService.listarPorHistoria(historiaClinicaId));
     }
 
+    @GetMapping("/por-atencion/{atencionId}")
+    public ResponseEntity<List<PlanTratamientoResponse>> listarPorAtencion(@PathVariable UUID atencionId) {
+        return ResponseEntity.ok(planService.listarPorAtencion(atencionId));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<PlanTratamientoResponse> actualizar(
             @PathVariable UUID id,

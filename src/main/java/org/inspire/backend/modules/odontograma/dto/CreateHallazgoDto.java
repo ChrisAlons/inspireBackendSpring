@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.inspire.backend.common.enums.EstadoHallazgo;
 
 public record CreateHallazgoDto(
-        @NotNull Short piezaId,
+        @NotNull Integer piezaId,
         @NotBlank String caraCodigo,
         @NotBlank String condicionCodigo,
         EstadoHallazgo estado,

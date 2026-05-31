@@ -23,6 +23,7 @@ class PacienteMapper {
                 per.getEmail(),
                 per.getDireccion(),
                 p.getCodigoHistoria(),
+                p.getHistoriaClinica() != null ? p.getHistoriaClinica().getId() : null,
                 p.getLugarNacimiento(),
                 p.getProcedencia(),
                 p.getViajesUltimoAnio(),

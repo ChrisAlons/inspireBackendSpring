@@ -73,6 +73,14 @@ public class PlanTratamientoService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<PlanTratamientoResponse> listarPorAtencion(UUID atencionId) {
+        List<PlanTratamiento> planes = planRepo.findByAtencionId(atencionId);
+        return planes.stream()
+                .map(PlanTratamientoMapper::toResponse)
+                .toList();
+    }
+
     @Transactional
     public PlanTratamientoResponse actualizar(UUID id, UpdatePlanTratamientoDto dto) {
         PlanTratamiento plan = planRepo.findById(id)

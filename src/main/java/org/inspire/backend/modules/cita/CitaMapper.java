@@ -11,7 +11,7 @@ class CitaMapper {
                 c.getId(),
                 c.getPaciente().getId(),
                 c.getOdontologo().getId(),
-                c.getPaciente().getHistoriaClinica().getId(),
+                c.getPaciente().getHistoriaClinica() != null ? c.getPaciente().getHistoriaClinica().getId() : null,
                 c.getPaciente().getPersona().getNombres(),
                 c.getPaciente().getPersona().getApellidoPaterno(),
                 c.getPaciente().getPersona().getApellidoMaterno(),

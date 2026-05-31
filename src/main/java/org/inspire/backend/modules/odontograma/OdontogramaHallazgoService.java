@@ -40,7 +40,7 @@ public class OdontogramaHallazgoService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Odontograma no encontrado: " + odontogramaId));
 
-        PiezaDental pieza = piezaRepo.findById(dto.piezaId())
+        PiezaDental pieza = piezaRepo.findById(dto.piezaId().shortValue())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Pieza dental no encontrada: " + dto.piezaId()));
 
@@ -73,7 +73,7 @@ public class OdontogramaHallazgoService {
         List<OdontogramaHallazgo> hallazgosCreados = new ArrayList<>();
 
         for (CreateHallazgoDto h : dto.hallazgos()) {
-            PiezaDental pieza = piezaRepo.findById(h.piezaId())
+            PiezaDental pieza = piezaRepo.findById(h.piezaId().shortValue())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Pieza dental no encontrada: " + h.piezaId()));
 
