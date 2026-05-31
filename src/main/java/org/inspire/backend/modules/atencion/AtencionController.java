@@ -41,6 +41,11 @@ public class AtencionController {
         return ResponseEntity.ok(atencionService.listarPorHistoria(historiaClinicaId));
     }
 
+    @GetMapping("/porcita/{citaId}")
+    public ResponseEntity<AtencionResponse> obtenerPorCita(@PathVariable UUID citaId) {
+        return ResponseEntity.ok(atencionService.obtenerPorCitaId(citaId));
+    }
+
     @GetMapping("/en-curso")
     public ResponseEntity<List<AtencionResponse>> listarEnCurso() {
         return ResponseEntity.ok(atencionService.listarEnCurso());

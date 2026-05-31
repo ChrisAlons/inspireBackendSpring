@@ -70,6 +70,14 @@ public class AtencionService {
     }
 
     @Transactional(readOnly = true)
+    public AtencionResponse obtenerPorCitaId(UUID citaId) {
+        Atencion atencion = atencionRepo.findByCitaId(citaId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Atención no encontrada para la cita: " + citaId));
+        return AtencionMapper.toResponse(atencion);
+    }
+
+    @Transactional(readOnly = true)
     public List<AtencionResponse> listarPorHistoria(UUID historiaClinicaId) {
         List<Atencion> atenciones = atencionRepo.findByHistoriaClinicaId(historiaClinicaId);
         return atenciones.stream()
