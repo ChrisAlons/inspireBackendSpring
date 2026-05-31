@@ -9,6 +9,7 @@ import org.hibernate.annotations.SQLRestriction;
 import org.inspire.backend.catalogo.estadocivil.EstadoCivil;
 import org.inspire.backend.catalogo.gradoinstruccion.GradoInstruccion;
 import org.inspire.backend.common.BaseEntity;
+import org.inspire.backend.modules.historiaclinica.HistoriaClinica;
 import org.inspire.backend.modules.persona.Persona;
 
 @Entity
@@ -23,6 +24,10 @@ public class Paciente extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "persona_id", nullable = false)
     private Persona persona;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "historia_clinica_id")
+    private HistoriaClinica historiaClinica;
 
     @Column(nullable = false, length = 20)
     private String codigoHistoria;

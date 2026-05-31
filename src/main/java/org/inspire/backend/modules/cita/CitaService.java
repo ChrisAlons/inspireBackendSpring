@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.inspire.backend.common.enums.EstadoCita;
 import org.inspire.backend.common.exception.BusinessException;
 import org.inspire.backend.common.exception.ResourceNotFoundException;
+import org.inspire.backend.modules.auth.UsuarioPrincipal;
 import org.inspire.backend.modules.cita.dto.CitaResponse;
 import org.inspire.backend.modules.cita.dto.CreateCitaDto;
 import org.inspire.backend.modules.cita.dto.UpdateCitaDto;
@@ -71,10 +72,11 @@ public class CitaService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CitaResponse> buscar(UUID pacienteId, Pageable pageable) {
+    public Page<CitaResponse> buscar(UUID pacienteId, Pageable pageable, UsuarioPrincipal principal) {
+        UUID odontologoId = principal.personaId();
         Page<Cita> page = (pacienteId != null)
-                ? citaRepo.findByPacienteId(pacienteId, pageable)
-                : citaRepo.findAll(pageable);
+                ? citaRepo.findByPacienteIdAndOdontologoId(pacienteId, odontologoId, pageable)
+                : citaRepo.findByOdontologoId(odontologoId, pageable);
         return page.map(CitaMapper::toResponse);
     }
 

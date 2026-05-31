@@ -1,74 +1,176 @@
 # AGENTS.md
 
-> Full context: see `CLAUDE.md` for complete conventions, structure, and rules.
+> Contexto completo: ver `CLAUDE.md` para convenciones, estructura y reglas.
 
-## Commands
+## Visión General del Proyecto
+
+SaaS de gestión odontológica para odontólogos particulares. MVP monousuario (un solo doctor por instancia). Multi-tenancy se agregará después de validar el producto.
+
+**Stack tecnológico:**
+- Backend: Java 25 + Spring Boot 4.0.6 + Hibernate 7 + PostgreSQL 18
+- Frontend: Angular 21 + Tailwind v4
+- Auth: Spring Security + JWT
+
+## Comandos
 
 ```bash
-# Windows
-mvnw.cmd spring-boot:run          # run (auto-starts Postgres via compose.yaml)
-mvnw.cmd clean package            # compile
-mvnw.cmd test                     # tests (none written yet)
+# Backend
+cd ../inspireBackendSpring-main
+./mvnw.cmd spring-boot:run          # ejecutar (levanta Postgres automáticamente)
+./mvnw.cmd clean package            # compilar
+./mvnw.cmd test                     # tests (ninguno escrito aún)
 
-# Linux/macOS
-./mvnw spring-boot:run
-./mvnw clean package
-./mvnw test
+# Frontend
+cd ../inspireFrontendAngular
+npm start                           # dev server en http://localhost:4200
+npm run build                       # build de producción
 ```
 
-No lint or typecheck commands — compilation (`clean package`) is the only code-quality gate.
+## Arquitectura
 
-## Architecture
+- Todas las tablas viven en schema `clinica` (no `public`)
+- `ddl-auto=validate` — schema controlado exclusivamente por Flyway
+- Spring Boot Docker Compose levanta Postgres automáticamente con `spring-boot:run`
+- Vars de entorno en `.env.example` — copiar a `.env` para sobreescribir
 
-- **Java 25** + **Spring Boot 4.0.6** + **Hibernate 7** + **PostgreSQL 18** (compose.yaml)
-- All tables live in schema `clinica` (not `public`). Hibernate config: `default_schema=clinica`.
-- `ddl-auto=validate` — schema is controlled exclusively by Flyway. Never change this.
-- Spring Boot Docker Compose auto-starts Postgres on `spring-boot:run`. No manual `docker compose up` needed.
-- Env vars in `.env.example` — copy to `.env` to override defaults (DB name, user, port).
+## Convenciones Críticas
 
-## Critical Conventions
+- **Soft delete en todas partes**: entidades usan `@SQLDelete` + `@SQLRestriction("deleted_at IS NULL")`
+- **Catálogos por código de negocio**: DTOs referencian catálogos como `"DNI"`, `"CARIES"`, `"CASADO"` — nunca por ID numérico
+- **DTOs son records de Java**: `Create*Dto` (validado), `Update*Dto` (todos opcionales), `*Response` (plano)
+- **Sin MapStruct**: mappers son clases package-private con métodos estáticos
+- **Nunca exponer entidades JPA** en controllers — siempre DTOs
 
-- **Soft delete everywhere**: all transactional entities use `@SQLDelete` + `@SQLRestriction("deleted_at IS NULL")`. Do NOT add `AndDeletedAtIsNull` to repository methods — the restriction handles it.
-- **Catalogs by business code**: DTOs reference catalogs as `"DNI"`, `"CARIES"`, `"CASADO"` — never by numeric ID. Service resolves via `findByCodigo()`.
-- **PostgreSQL native enums**: require `@Enumerated(EnumType.STRING)` + `@JdbcTypeCode(SqlTypes.NAMED_ENUM)` + `columnDefinition = "enum_name"`. See `Cita.java` for the pattern.
-- **Sentinel values**: `pieza_dental.id=0` and `cara_dental.codigo='NO_APLICA'` are valid, not errors.
-- **No MapStruct**: mappers are package-private classes with static methods.
-- **DTOs are Java records**: `Create*Dto` (validated), `Update*Dto` (all optional), `*Response` (flat).
-- **Never expose JPA entities** in controllers — always DTOs.
+## Estado de Módulos
 
-## Module Status
+### Backend (COMPLETO)
+Todos los módulos tienen stack completo: Service + Controller + Mapper + DTOs
 
-All modules have full stack (Service + Controller + Mapper + DTOs) implemented:
+| Módulo | Estado | Notas |
+|--------|--------|-------|
+| `persona` | ✅ | CRUD independiente (odontólogos, referencias) |
+| `paciente` | ✅ | CRUD con Persona embebida |
+| `contactoemergencia` | ✅ | CRUD anidado bajo paciente |
+| `historiaclinica` | ✅ | 1:1 con paciente |
+| `cita` | ✅ | CRUD + máquina de estados + join con paciente |
+| `atencion` | ✅ | CRUD + cerrar (fechaFin) + listar en curso |
+| `enfermedadactual` | ✅ | 1:1 con atencion |
+| `antecedente` | ✅ | personales + familiares, ligados a historiaclinica |
+| `habito` | ✅ | unique constraint por (historiaClinicaId, tipo) |
+| `odontograma` | ✅ | CRUD + hallazgos + endpoint de voz |
+| `plantratamiento` | ✅ | cabecera + detalles + eventos |
+| `tratamientoejecutado` | ✅ | registro de procedimientos completados |
 
-- `persona` — CRUD standalone (odontólogos, referencias)
-- `paciente` — CRUD con Persona embebida (módulo de referencia)
-- `contactoemergencia` — CRUD anidado bajo paciente
-- `historiaclinica` — 1:1 con paciente
-- `cita` — CRUD + máquina de estados (PROGRAMADA → CONFIRMADA → EN_CURSO → ATENDIDA/CANCELADA/NO_ASISTIO)
-- `atencion` — CRUD + cerrar (fechaFin) + listar en curso
-- `enfermedadactual` — 1:1 con atencion
-- `antecedente` — personales + familiares, ligados a historiaclinica
-- `habito` — unique constraint por (historiaClinicaId, tipo)
-- `odontograma` — CRUD + hallazgos + **endpoint de voz** (`POST /{id}/hallazgos/voz`)
-- `plantratamiento` — cabecera + detalles + eventos, flujo de estados (PROPUESTO → ACEPTADO → EN_EJECUCION → COMPLETADO/PARCIAL)
-- `tratamientoejecutado` — registro de procedimientos completados, marca detalle como EJECUTADO
+### Frontend (PARCIAL)
 
-## Flyway Migrations
+| Módulo | Estado | Notas |
+|--------|--------|-------|
+| Login | ✅ | Auth JWT con token storage |
+| Dashboard | ✅ | Layout básico |
+| Pacientes | ✅ | List + Form + Detail components |
+| Citas | ✅ | List + Form + Detail + cambiar estado |
+| Atenciones | ✅ | List (en curso) + Detail + cerrar |
+| Odontograma | ⏳ | No iniciado |
+| Plan Tratamiento | ⏳ | No iniciado |
 
-- Files: `src/main/resources/db/migration/V<n>__<name>.sql`
-- V1 = schema, V2 = catalog seeds. Next migration = V3.
-- Never modify applied migrations. Changes go in a new migration file.
-- Seeds go in separate migrations, not in schema migrations.
+## Autenticación y Autorización
 
-## Testing & API
+- **Spring Security + JWT**: todos los endpoints requieren `Authorization: Bearer <token>` excepto `/api/auth/**` y Swagger
+- **Login**: `POST /api/auth/login` con `{"email", "password"}` retorna JWT + info del usuario
+- **Admin seed**: `admin@inspire.com` / `admin123`
+- **UsuarioPrincipal**: record con `usuarioId`, `personaId`, `email`. Usar `@AuthenticationPrincipal` en controllers
+- **Multi-tenancy**: métodos `buscar()` filtran por `odontologoId` del `SecurityContext`
 
-- **No tests written yet** — test infrastructure exists (`spring-boot-starter-*-test` in pom.xml) but no test cases.
-- **Bruno** collections in `bruno/` for manual API testing.
-- **OpenAPI/Swagger UI** available via `springdoc-openapi` (dependency in pom.xml).
+## Endpoints API Principales
+
+### Auth
+- `POST /api/auth/login` — login, retorna JWT
+
+### Pacientes
+- `GET /api/pacientes` — listar (paginado, filtrado por odontólogo)
+- `GET /api/pacientes/{id}` — obtener por id
+- `POST /api/pacientes` — crear
+- `PUT /api/pacientes/{id}` — actualizar
+- `DELETE /api/pacientes/{id}` — soft delete
+
+### Citas
+- `GET /api/citas` — listar (paginado, filtrado por odontólogo)
+- `GET /api/citas/{id}` — obtener por id
+- `POST /api/citas` — crear
+- `PUT /api/citas/{id}` — actualizar
+- `PATCH /api/citas/{id}/estado` — cambiar estado
+- `DELETE /api/citas/{id}` — soft delete
+
+### Atenciones
+- `GET /api/atenciones/en-curso` — listar atenciones con fechaFin=null
+- `GET /api/atenciones/{id}` — obtener por id
+- `GET /api/atenciones/por-historia/{historiaClinicaId}` — listar por historia
+- `POST /api/atenciones` — crear
+- `PUT /api/atenciones/{id}` — actualizar (solo notas)
+- `PATCH /api/atenciones/{id}/cerrar` — cerrar atencion
+- `DELETE /api/atenciones/{id}` — soft delete
+
+## Relaciones de Entidades Clave
+
+```
+Persona (odontólogo o persona de contacto)
+  └── Usuario (credenciales, FK to Persona)
+  └── Paciente (FK to Persona)
+        └── HistoriaClinica (FK to Paciente, @OneToOne)
+              └── Cita (FK to Paciente + Odontologo)
+                    └── Atencion (FK to Cita + HistoriaClinica + Odontologo)
+```
+
+## Migraciones Flyway
+
+| Archivo | Descripción |
+|---------|-------------|
+| V1 | Schema inicial (todas las tablas, tipos, funciones, triggers) |
+| V2 | Seeds de catálogos (sexo, tipo_documento, estado_civil, etc.) |
+| V3 | Seeds de procedimientos |
+| V4 | Tabla usuario + seed admin |
+| V5 | Datos de prueba (paciente completo) |
+| V6 | Agregar historia_clinica_id a tabla paciente |
+
+**Regla**: Nunca modificar migraciones ya aplicadas. Cambios van en una nueva migración.
+
+## Componentes Frontend
+
+### Componentes Compartidos
+- `shared/components/paciente-select/` — selector de paciente con búsqueda
+
+### Componentes de Features
+Cada feature tiene componentes list, form y detail:
+- `features/pacientes/paciente-list/`
+- `features/pacientes/paciente-form/`
+- `features/pacientes/patient-detail/`
+- `features/citas/cita-list/`
+- `features/citas/cita-form/`
+- `features/citas/cita-detail/`
+- `features/atenciones/atencion-list/`
+- `features/atenciones/atencion-detail/`
+
+## Manejo de Estado
+
+Los servicios usan Angular Signals:
+```typescript
+private _data = signal<Type[]>([]);
+readonly data = this._data.asReadonly();
+```
+
+Los controladores inyectan servicios y usan signals computados para estado derivado.
+
+## Ambiente
+
+- Backend: `http://localhost:8080`
+- Frontend: `http://localhost:4200` (proxea al backend)
+- Base de datos: PostgreSQL via Docker Compose
+- Usuario test: `admin@inspire.com` / `admin123`
+- Paciente test: María García López (DNI: 12345678)
 
 ## Gotchas
 
-- `procedimiento` is a catalog-like table but uses UUID PK + soft delete (unlike other catalogs which use SMALLINT + `is_active`).
-- `plan_tratamiento_evento` has no soft delete and no `updated_at` — it's an append-only audit log.
-- `habito` has a unique constraint on `(historia_clinica_id, tipo)` — one record per habit type per history.
-- `atencion.fecha_fin` is intentionally nullable (NULL = in progress). One of only two allowed NULL fields (the other being `deleted_at`).
+- `procedimiento` usa UUID PK + soft delete (a diferencia de catálogos que usan SMALLINT + `is_active`)
+- `plan_tratamiento_evento` es log de auditoría solo append (no soft delete, no `updated_at`)
+- `atencion.fecha_fin` es intencionalmente nullable (NULL = en curso)
+- Siempre usar `@AuthenticationPrincipal UsuarioPrincipal` para obtener el usuario actual y filtrar

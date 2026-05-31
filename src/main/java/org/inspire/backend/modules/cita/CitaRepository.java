@@ -11,6 +11,8 @@ import java.util.UUID;
 
 public interface CitaRepository extends JpaRepository<Cita, UUID> {
     Page<Cita> findByPacienteId(UUID pacienteId, Pageable pageable);
+    Page<Cita> findByOdontologoId(UUID odontologoId, Pageable pageable);
+    Page<Cita> findByPacienteIdAndOdontologoId(UUID pacienteId, UUID odontologoId, Pageable pageable);
     List<Cita> findByEstado(EstadoCita estado);
     List<Cita> findByFechaHoraInicioBetween(OffsetDateTime desde, OffsetDateTime hasta);
 }

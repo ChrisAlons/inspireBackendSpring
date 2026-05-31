@@ -21,9 +21,86 @@
     { "key": "hallazgoId", "value": "", "type": "string" },
     { "key": "planId", "value": "", "type": "string" },
     { "key": "planDetalleId", "value": "", "type": "string" },
-    { "key": "tratamientoEjecutadoId", "value": "", "type": "string" }
+    { "key": "tratamientoEjecutadoId", "value": "", "type": "string" },
+    { "key": "token", "value": "", "type": "string" }
   ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{token}}", "type": "string" }
+    ]
+  },
   "item": [
+    {
+      "name": "0 - Auth",
+      "item": [
+        {
+          "name": "00 - Login (obtener token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('token', body.token);",
+                  "    pm.collectionVariables.set('odontologoId', body.personaId);",
+                  "    console.log('token:', body.token);",
+                  "    console.log('odontologoId (personaId):', body.personaId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"email\": \"admin@inspire.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "00b - Login ERROR - Credenciales inválidas → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"email\": \"admin@inspire.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
     {
       "name": "1 - Personas",
       "item": [
@@ -2144,7 +2221,7 @@
             "body": {
               "mode": "raw",
               "options": { "raw": { "language": "json" } },
-              "raw": "{\n  \"estado\": \"ACEPTADO\",\n  \"actorPersonaId\": \"{{odontologoId}}\",\n  \"aceptadoPor\": \"Juan Carlos García López\",\n  \"notas\": \"Paciente firma consentimiento físico\"\n}"
+              "raw": "{\n  \"estado\": \"ACEPTADO\",\n  \"aceptadoPor\": \"Juan Carlos García López\",\n  \"notas\": \"Paciente firma consentimiento físico\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/planes-tratamiento/{{planId}}/estado",
@@ -2176,7 +2253,7 @@
             "body": {
               "mode": "raw",
               "options": { "raw": { "language": "json" } },
-              "raw": "{\n  \"estado\": \"EN_EJECUCION\",\n  \"actorPersonaId\": \"{{odontologoId}}\",\n  \"notas\": \"Inicio de procedimientos\"\n}"
+              "raw": "{\n  \"estado\": \"EN_EJECUCION\",\n  \"notas\": \"Inicio de procedimientos\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/planes-tratamiento/{{planId}}/estado",

@@ -2,6 +2,7 @@ package org.inspire.backend.modules.cita;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.inspire.backend.modules.auth.UsuarioPrincipal;
 import org.inspire.backend.modules.cita.dto.CambiarEstadoCitaDto;
 import org.inspire.backend.modules.cita.dto.CitaResponse;
 import org.inspire.backend.modules.cita.dto.CreateCitaDto;
@@ -9,6 +10,7 @@ import org.inspire.backend.modules.cita.dto.UpdateCitaDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -41,8 +43,9 @@ public class CitaController {
     @GetMapping
     public ResponseEntity<Page<CitaResponse>> buscar(
             @RequestParam(required = false) UUID pacienteId,
-            Pageable pageable) {
-        return ResponseEntity.ok(citaService.buscar(pacienteId, pageable));
+            Pageable pageable,
+            @AuthenticationPrincipal UsuarioPrincipal principal) {
+        return ResponseEntity.ok(citaService.buscar(pacienteId, pageable, principal));
     }
 
     @PutMapping("/{id}")

@@ -87,7 +87,7 @@ public class PlanTratamientoService {
     }
 
     @Transactional
-    public PlanTratamientoResponse cambiarEstado(UUID id, CambiarEstadoPlanDto dto) {
+    public PlanTratamientoResponse cambiarEstado(UUID id, CambiarEstadoPlanDto dto, UUID actorPersonaId) {
         PlanTratamiento plan = planRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Plan de tratamiento no encontrado: " + id));
@@ -100,9 +100,9 @@ public class PlanTratamientoService {
                     "Transición no válida de " + estadoActual + " a " + dto.estado());
         }
 
-        Persona actor = personaRepo.findById(dto.actorPersonaId())
+        Persona actor = personaRepo.findById(actorPersonaId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Persona no encontrada: " + dto.actorPersonaId()));
+                        "Persona no encontrada: " + actorPersonaId));
 
         plan.setEstado(dto.estado());
         PlanTratamiento updated = planRepo.save(plan);

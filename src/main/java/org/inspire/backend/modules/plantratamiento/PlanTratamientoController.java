@@ -2,8 +2,10 @@ package org.inspire.backend.modules.plantratamiento;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.inspire.backend.modules.auth.UsuarioPrincipal;
 import org.inspire.backend.modules.plantratamiento.dto.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -49,8 +51,9 @@ public class PlanTratamientoController {
     @PatchMapping("/{id}/estado")
     public ResponseEntity<PlanTratamientoResponse> cambiarEstado(
             @PathVariable UUID id,
-            @Valid @RequestBody CambiarEstadoPlanDto dto) {
-        return ResponseEntity.ok(planService.cambiarEstado(id, dto));
+            @Valid @RequestBody CambiarEstadoPlanDto dto,
+            @AuthenticationPrincipal UsuarioPrincipal principal) {
+        return ResponseEntity.ok(planService.cambiarEstado(id, dto, principal.personaId()));
     }
 
     @GetMapping("/{id}/eventos")
